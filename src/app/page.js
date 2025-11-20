@@ -1,304 +1,376 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Globe, Zap, Radio, Play, Disc, X } from 'lucide-react';
+import { ArrowRight, Play, Pause, Disc, SkipForward, Trophy, Zap, Activity, Globe, CheckCircle, X } from 'lucide-react';
 
-// --- COMPONENTE DE IMAGEN CON ESTILO ---
-const ArtImage = ({ src, alt, className }) => (
-  <div className={`relative overflow-hidden grayscale hover:grayscale-0 transition-all duration-700 ${className}`}>
-    <img src={src} alt={alt} className="object-cover w-full h-full scale-110 hover:scale-100 transition-transform duration-1000 ease-out" />
-    <div className="absolute inset-0 bg-[#ccff00]/10 mix-blend-multiply opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
+// --- 1. COMPONENTE PRELOADER ---
+const Preloader = ({ onComplete }) => {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(timer);
+          setTimeout(onComplete, 500); 
+          return 100;
+        }
+        return prev + 2;
+      });
+    }, 30);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <motion.div 
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center text-[#ccff00]"
+    >
+      <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 uppercase">Emil Club</h1>
+      <div className="w-64 h-1 bg-[#111] overflow-hidden">
+        <motion.div 
+          className="h-full bg-[#ccff00]"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <p className="mt-2 text-xs font-mono opacity-50">LOADING ASSETS... {progress}%</p>
+    </motion.div>
+  );
+};
+
+// --- 2. UTILITIES ---
+const ArtImage = ({ src, className, overlay = false }) => (
+  <div className={`relative overflow-hidden group h-full w-full ${className}`}>
+    {overlay && <div className="absolute inset-0 bg-[#ccff00] mix-blend-multiply opacity-0 group-hover:opacity-60 transition-opacity duration-500 z-10"></div>}
+    <img src={src} alt="Visual" className="object-cover w-full h-full grayscale group-hover:grayscale-0 scale-110 group-hover:scale-100 transition-all duration-700 ease-out" />
   </div>
 );
 
-export default function EmilClubExperience() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [formStep, setFormStep] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const { scrollYProgress } = useScroll();
-  
-  // Parallax FX
-  const yHero = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  const xText = useTransform(scrollYProgress, [0, 0.5], [0, -100]);
+const Vinyl3D = ({ isPlaying, onClick }) => (
+  <motion.div 
+    className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer group perspective-1000"
+    onClick={onClick}
+    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+  >
+    <motion.div 
+      animate={{ rotate: isPlaying ? 360 : 0 }}
+      transition={{ duration: 3, repeat: Infinity, ease: "linear", playState: isPlaying ? "running" : "paused" }}
+      className="w-full h-full rounded-full bg-black border-4 border-[#111] shadow-[0_0_40px_rgba(204,255,0,0.3)] flex items-center justify-center relative z-10 overflow-hidden"
+    >
+      <div className="absolute inset-0 bg-[repeating-radial-gradient(#111_0,#111_2px,#222_3px)] opacity-50"></div>
+      <div className="w-1/3 h-1/3 bg-[#ccff00] rounded-full flex items-center justify-center relative z-20">
+         <div className="w-3 h-3 bg-black rounded-full"></div>
+      </div>
+    </motion.div>
+  </motion.div>
+);
 
-  // Cursor Logic
+const PersistentPlayer = ({ isPlaying, togglePlay }) => {
+  return (
+    <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className="fixed bottom-0 left-0 w-full bg-[#050505]/90 backdrop-blur-xl border-t border-white/10 z-50 px-6 py-3 flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <div className={`w-10 h-10 bg-[#ccff00] flex items-center justify-center ${isPlaying ? 'animate-pulse' : ''}`}>
+            <Disc size={20} className={`text-black ${isPlaying ? 'animate-spin' : ''}`} />
+        </div>
+        <div className="hidden md:block">
+            <h4 className="text-sm font-black text-white uppercase">NO FAKE LOVE</h4>
+            <p className="text-xs text-[#ccff00] font-mono">EMIL • PROD. SYSTEM</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-6">
+        <SkipForward size={24} className="text-gray-500 rotate-180 cursor-pointer hover:text-white" />
+        <button onClick={togglePlay} className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+            {isPlaying ? <Pause fill="black" size={20} /> : <Play fill="black" className="ml-1" size={20} />}
+        </button>
+        <SkipForward size={24} className="text-gray-500 cursor-pointer hover:text-white" />
+      </div>
+      
+      {/* Visualizador de Audio */}
+      <div className="hidden lg:flex items-end gap-1 h-8 ml-auto">
+        {[...Array(12)].map((_, i) => (
+            <motion.div 
+                key={i}
+                animate={{ height: isPlaying ? [8, Math.random() * 32 + 5, 8] : 4 }}
+                transition={{ duration: 0.4, repeat: Infinity, delay: i * 0.05 }}
+                className="w-1 bg-[#ccff00] rounded-sm opacity-80"
+            />
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
+export default function EmilClubFinal() {
+  const [loading, setLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [formStep, setFormStep] = useState(1);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const { scrollYProgress } = useScroll();
+  const yHero = useTransform(scrollYProgress, [0, 1], [0, 200]);
+
   useEffect(() => {
     const updateMouse = (e) => setMousePosition({ x: e.clientX, y: e.clientY });
     window.addEventListener("mousemove", updateMouse);
-    // Simular carga de assets
-    setTimeout(() => setLoading(false), 2500);
     return () => window.removeEventListener("mousemove", updateMouse);
   }, []);
 
   if (loading) {
-    return (
-      <div className="h-screen bg-black flex flex-col items-center justify-center text-[#ccff00] font-mono z-[9999]">
-        <div className="animate-pulse text-4xl font-black tracking-tighter">EMIL CLUB</div>
-        <div className="mt-4 w-32 h-1 bg-[#111] overflow-hidden">
-            <motion.div 
-                initial={{ width: 0 }} animate={{ width: "100%" }} 
-                transition={{ duration: 2, ease: "easeInOut" }} 
-                className="h-full bg-[#ccff00]" 
-            />
-        </div>
-        <div className="mt-2 text-xs opacity-50">LOADING ASSETS...</div>
-      </div>
-    );
+    return <Preloader onComplete={() => setLoading(false)} />;
   }
 
   return (
-    <div className="bg-[#050505] min-h-screen text-white selection:bg-[#ccff00] selection:text-black font-sans overflow-x-hidden">
+    <div className="bg-[#050505] min-h-screen text-white font-sans overflow-x-hidden pb-24 selection:bg-[#ccff00] selection:text-black">
       
-      {/* --- TEXTURA DE RUIDO (FILM GRAIN) --- */}
-      <div className="fixed inset-0 z-50 pointer-events-none opacity-[0.07]" 
-           style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+      {/* Noise Texture */}
+      <div className="fixed inset-0 z-20 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+      {/* Custom Cursor */}
+      <motion.div className="fixed w-6 h-6 border border-[#ccff00] rounded-full z-[100] pointer-events-none mix-blend-difference hidden md:block" animate={{ x: mousePosition.x - 12, y: mousePosition.y - 12 }} transition={{ type: "spring", mass: 0.1 }} />
 
-      {/* --- CURSOR CUSTOM --- */}
-      <motion.div 
-        className="fixed w-6 h-6 bg-[#ccff00] rounded-full z-[100] pointer-events-none mix-blend-difference hidden md:block blur-[2px]"
-        animate={{ x: mousePosition.x - 12, y: mousePosition.y - 12 }}
-        transition={{ type: "spring", mass: 0.2 }}
-      />
-
-      {/* --- HERO SECTION VISUAL --- */}
-      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
+      {/* --- SECCIÓN 1: HERO & VINILO --- */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden">
         
-        {/* Imagen de Fondo Gigante */}
-        <motion.div style={{ y: yHero }} className="absolute inset-0 z-0 opacity-60">
-            <img 
-                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2680&auto=format&fit=crop" 
-                className="w-full h-full object-cover object-top grayscale"
-                alt="Hero Background"
+        {/* FONDO IMAGEN/VIDEO ANIMADO */}
+        <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-[#050505]/40 z-10"></div>
+            <motion.img 
+                initial={{ scale: 1 }}
+                animate={{ scale: 1.1 }}
+                transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
+                src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?q=80&w=2070&auto=format&fit=crop" 
+                alt="Concert Background" 
+                className="w-full h-full object-cover opacity-50"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/50 to-transparent"></div>
-        </motion.div>
-
-        {/* Tipografía Gigante Sobrepuesta */}
-        <div className="relative z-10 text-center mix-blend-difference px-4">
-          <motion.div 
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-          >
-            <h2 className="text-[#ccff00] font-mono text-sm tracking-[1em] mb-6 border-b border-[#ccff00] inline-block pb-2">OFFICIAL FAN CLUB</h2>
-            <h1 className="text-[12vw] leading-[0.8] font-black tracking-tighter uppercase">
-              Emil<br/>
-              <span className="text-transparent stroke-text">World</span>
-            </h1>
-          </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
-        <motion.div 
-            animate={{ y: [0, 10, 0] }} 
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 text-xs font-mono text-[#ccff00]"
-        >
-            SCROLL TO ENTER
+        <motion.div style={{ y: yHero }} className="absolute inset-0 flex items-center justify-center select-none opacity-20 pointer-events-none z-0">
+             <h1 className="text-[25vw] font-black text-white leading-none tracking-tighter mix-blend-overlay">EMIL</h1>
         </motion.div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-12 w-full max-w-7xl">
+            <div className="flex-1 space-y-8">
+                <div className="inline-flex items-center gap-2 px-3 py-1 border border-[#ccff00] rounded-full text-[#ccff00] font-mono text-xs uppercase tracking-widest bg-black/50 backdrop-blur-sm">
+                    <span className="w-2 h-2 bg-[#ccff00] rounded-full animate-ping"></span>
+                    SYSTEM ONLINE V2.0
+                </div>
+                <h2 className="text-6xl md:text-8xl font-black uppercase leading-[0.9]">
+                    Rompe <br/>
+                    <span className="text-transparent stroke-text" style={{ WebkitTextStroke: "2px white" }}>La Norma</span>
+                </h2>
+                <p className="text-xl text-gray-300 max-w-lg">
+                    Únete a la tribu. Accede a contenido encriptado, preventas exclusivas y sube de rango en el leaderboard global.
+                </p>
+                
+                <div className="flex gap-4 pt-4">
+                    <button onClick={() => document.getElementById('mission-control').scrollIntoView({behavior:'smooth'})} className="bg-[#ccff00] text-black px-8 py-4 font-bold text-lg hover:bg-white transition-colors">
+                        UNIRSE AHORA
+                    </button>
+                    <button onClick={() => setIsPlaying(!isPlaying)} className="border border-white px-8 py-4 font-bold text-lg hover:bg-white hover:text-black transition-colors flex items-center gap-2 backdrop-blur-sm bg-black/20">
+                        {isPlaying ? <Pause size={20} /> : <Play size={20} />} 
+                        {isPlaying ? "PAUSA" : "PLAY DEMO"}
+                    </button>
+                </div>
+            </div>
+            
+            <div className="flex-1 flex justify-center">
+                <Vinyl3D isPlaying={isPlaying} onClick={() => setIsPlaying(!isPlaying)} />
+            </div>
+        </div>
       </section>
 
-      {/* --- MARQUEE ARTÍSTICO --- */}
-      <div className="border-y border-white/20 bg-black py-6 overflow-hidden relative z-20">
+      {/* --- SECCIÓN 2: MARQUEE (30s) --- */}
+      <div className="bg-[#ccff00] py-4 overflow-hidden transform -rotate-1 border-y-4 border-black relative z-20 flex">
         <motion.div 
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
-          className="whitespace-nowrap text-6xl md:text-8xl font-black text-transparent stroke-white flex gap-12 opacity-50"
-          style={{ WebkitTextStroke: "1px rgba(255,255,255,0.5)" }}
+          className="flex whitespace-nowrap"
+          animate={{ x: ["0%", "-50%"] }} 
+          transition={{ repeat: Infinity, duration: 30, ease: "linear" }} 
         >
-          <span>NO FAKE LOVE</span>
-          <span className="text-[#ccff00]" style={{ WebkitTextStroke: "0px" }}>+++</span>
-          <span>DESDE LATINOAMÉRICA</span>
-          <span className="text-[#ccff00]" style={{ WebkitTextStroke: "0px" }}>+++</span>
-          <span>JOIN THE TRIBE</span>
-          <span className="text-[#ccff00]" style={{ WebkitTextStroke: "0px" }}>+++</span>
-          <span>NO FAKE LOVE</span>
-          <span className="text-[#ccff00]" style={{ WebkitTextStroke: "0px" }}>+++</span>
-          <span>DESDE LATINOAMÉRICA</span>
+           {[...Array(8)].map((_, i) => (
+              <span key={i} className="text-4xl font-black text-black px-8">
+                  JOIN THE TRIBE +++ ACCESS GRANTED +++ NO FAKE LOVE +++
+              </span>
+           ))}
         </motion.div>
       </div>
 
-      {/* --- VISUAL GRID & BENEFITS (Estilo Revista) --- */}
-      <section id="content" className="max-w-screen-2xl mx-auto px-6 py-32 relative">
-        
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            
-            {/* Texto Editorial */}
-            <div className="md:col-span-4 flex flex-col justify-end pb-10">
-                <h2 className="text-6xl font-bold leading-none mb-8">
-                    MÁS QUE <br/>
-                    <span className="text-[#ccff00] italic">MÚSICA.</span>
-                </h2>
-                <p className="text-xl text-gray-400 max-w-sm">
+      {/* --- SECCIÓN 3: BENTO GRID BENEFICIOS --- */}
+      <section className="py-32 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[350px]">
+            <div className="bg-[#0a0a0a] border border-white/10 p-10 flex flex-col justify-center">
+                <h3 className="text-5xl font-black uppercase leading-none mb-4">
+                    Más que <br/><span className="text-[#ccff00]">Música.</span>
+                </h3>
+                <p className="text-gray-400 text-sm">
                     Únete al círculo interno. Acceso a contenido raw, preventas exclusivas y una comunidad que entiende el código.
                 </p>
             </div>
-
-            {/* Imagen 1 */}
-            <div className="md:col-span-5 h-[500px]">
-                <ArtImage 
-                    src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2670&auto=format&fit=crop" 
-                    className="w-full h-full rounded-sm"
-                />
-            </div>
-
-            {/* Stat Box Vertical */}
-            <div className="md:col-span-3 bg-[#111] border border-white/10 p-8 flex flex-col justify-between">
-                <Disc className="animate-spin-slow w-12 h-12 text-[#ccff00]" />
-                <div>
-                    <div className="text-5xl font-mono font-bold mb-2">12.5K</div>
-                    <div className="text-xs font-mono text-gray-500 uppercase tracking-widest">Miembros Activos</div>
+            <div className="md:col-span-2 relative">
+                <ArtImage src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2670&auto=format&fit=crop" overlay={true} />
+                <div className="absolute top-4 right-4 w-12 h-12 border border-[#ccff00] rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-[#ccff00] rounded-full animate-ping"></div>
                 </div>
             </div>
-
-            {/* Imagen 2 (Ancha) */}
-            <div className="md:col-span-8 h-[400px]">
-                <ArtImage 
-                    src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2670&auto=format&fit=crop" 
-                    className="w-full h-full rounded-sm"
-                />
+            <div className="md:col-span-2">
+                <ArtImage src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2670&auto=format&fit=crop" />
             </div>
-
-            {/* Beneficios List */}
-            <div className="md:col-span-4 bg-[#ccff00] text-black p-10 flex flex-col justify-center relative overflow-hidden group">
-                <div className="relative z-10">
-                    <h3 className="text-3xl font-black mb-6 uppercase">Tu Acceso</h3>
-                    <ul className="space-y-4 font-mono text-sm font-bold">
-                        <li className="flex items-center gap-3 border-b border-black/20 pb-2"><Play size={12} fill="black"/> EARLY ACCESS TICKETS</li>
-                        <li className="flex items-center gap-3 border-b border-black/20 pb-2"><Play size={12} fill="black"/> BEHIND THE SCENES</li>
-                        <li className="flex items-center gap-3 border-b border-black/20 pb-2"><Play size={12} fill="black"/> DIGITAL MEET & GREET</li>
-                    </ul>
-                    <button onClick={() => document.getElementById('form-zone').scrollIntoView({behavior:'smooth'})} className="mt-8 bg-black text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-white hover:text-black transition-colors">
-                        INICIAR REGISTRO &rarr;
-                    </button>
-                </div>
-                {/* Efecto Hover */}
-                <div className="absolute inset-0 bg-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-0"></div>
+            <div className="bg-[#ccff00] text-black p-8 flex flex-col justify-between">
+                <h3 className="text-3xl font-black uppercase">Tu Acceso</h3>
+                <ul className="space-y-4 font-bold font-mono text-sm">
+                    <li className="flex items-center gap-2 border-b border-black/20 pb-2"><Play size={10} fill="black"/> EARLY ACCESS TICKETS</li>
+                    <li className="flex items-center gap-2 border-b border-black/20 pb-2"><Play size={10} fill="black"/> BEHIND THE SCENES</li>
+                    <li className="flex items-center gap-2 border-b border-black/20 pb-2"><Play size={10} fill="black"/> DIGITAL MEET & GREET</li>
+                </ul>
+                <button onClick={() => document.getElementById('mission-control').scrollIntoView({behavior:'smooth'})} className="bg-black text-white py-3 rounded-full text-sm font-bold hover:bg-white hover:text-black transition-colors mt-4">
+                    INICIAR REGISTRO &rarr;
+                </button>
             </div>
         </div>
       </section>
 
-      {/* --- FORMULARIO INTERACTIVO "SYSTEM" --- */}
-      <section id="form-zone" className="min-h-[90vh] flex items-center justify-center relative py-20 bg-[#080808] border-t border-white/10">
-        
-        {/* Fondo Decorativo */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#ccff00] rounded-full blur-[150px] opacity-10"></div>
+      {/* --- SECCIÓN 4: LEADERBOARD --- */}
+      <section className="py-20 px-6 max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-12">
+            <div>
+                <h3 className="text-4xl font-black uppercase flex items-center gap-3">
+                    <Trophy className="text-[#ccff00]" size={40}/>
+                    Leaderboard
+                </h3>
+                <p className="text-gray-500 font-mono">Top miembros de la tribu este mes</p>
+            </div>
+            <button className="text-sm font-mono border-b border-[#ccff00] text-[#ccff00]">VER TODOS &rarr;</button>
         </div>
 
-        <div className="w-full max-w-3xl px-6 relative z-10">
-          
-          <div className="flex justify-between items-end mb-12">
-            <h2 className="text-4xl md:text-6xl font-black uppercase">System<br/>Entry</h2>
-            <div className="text-right">
-                <div className="font-mono text-[#ccff00] text-xl">Fase {formStep}/3</div>
-                <div className="text-xs text-gray-600 uppercase">Secure Connection</div>
+        <div className="bg-[#111] border border-white/10 rounded-xl overflow-hidden">
+            {[
+                { rank: 1, user: "CyberPunk_99", pts: "15,400", country: "PE" },
+                { rank: 2, user: "EmilStan_MX", pts: "12,200", country: "MX" },
+                { rank: 3, user: "TrapQueen", pts: "10,850", country: "AR" },
+            ].map((fan, i) => (
+                <div key={i} className="flex items-center justify-between p-6 border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <div className="flex items-center gap-6">
+                        <span className={`text-2xl font-black font-mono ${i === 0 ? 'text-[#ccff00]' : 'text-gray-600'}`}>
+                            #{fan.rank}
+                        </span>
+                        <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden">
+                             <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${fan.user}`} alt="avatar" />
+                        </div>
+                        <div>
+                            <div className="font-bold text-lg group-hover:text-[#ccff00] transition-colors">{fan.user}</div>
+                            <div className="text-xs text-gray-500 font-mono">NIVEL: {i === 0 ? 'LEGEND' : 'ELITE'}</div>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <span className="text-2xl">{fan.country}</span>
+                        <div className="text-right">
+                            <div className="font-bold font-mono text-xl">{fan.pts}</div>
+                            <div className="text-[10px] text-gray-500 uppercase">XP POINTS</div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+            
+            <div className="p-8 bg-[#1a1a1a] text-center">
+                <p className="text-sm text-gray-300 mb-4">¿Quieres aparecer aquí? Regístrate y escucha música para ganar XP.</p>
+                <button className="bg-[#ccff00] text-black px-6 py-2 font-bold text-sm rounded-full hover:bg-white transition-colors">
+                    CREAR CUENTA DE FAN
+                </button>
             </div>
-          </div>
+        </div>
+      </section>
 
-          {/* Barra de progreso */}
-          <div className="w-full h-1 bg-[#222] mb-12">
-            <motion.div 
-                animate={{ width: `${(formStep / 3) * 100}%` }}
-                className="h-full bg-[#ccff00] shadow-[0_0_15px_#ccff00]"
-            />
-          </div>
+      {/* --- SECCIÓN 5: MISSION CONTROL (LIMPIO Y CENTRADO) --- */}
+      <section id="mission-control" className="py-20 px-6 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#ccff00] rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
 
-          <AnimatePresence mode="wait">
-            {formStep === 1 && (
-              <motion.div 
-                key="step1"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="space-y-8 bg-[#111] p-10 border border-white/5 rounded-sm"
-              >
-                <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                        <label className="text-xs font-mono text-gray-500">IDENTIFICACIÓN</label>
-                        <input type="text" placeholder="Tu Nombre" className="w-full bg-transparent border-b border-[#333] text-2xl py-2 focus:outline-none focus:border-[#ccff00] text-white transition-colors" />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-xs font-mono text-gray-500">CONTACTO</label>
-                        <input type="email" placeholder="Email" className="w-full bg-transparent border-b border-[#333] text-2xl py-2 focus:outline-none focus:border-[#ccff00] text-white transition-colors" />
-                    </div>
-                </div>
-                 <div className="space-y-2">
-                    <label className="text-xs font-mono text-gray-500">UBICACIÓN (DATA SERVER)</label>
-                    <select className="w-full bg-transparent border-b border-[#333] text-2xl py-2 focus:outline-none focus:border-[#ccff00] text-white transition-colors appearance-none">
-                        <option className="bg-black">Seleccionar País...</option>
-                        <option className="bg-black">Perú</option>
-                        <option className="bg-black">México</option>
-                        <option className="bg-black">Global</option>
-                    </select>
-                </div>
+        <div className="max-w-3xl mx-auto relative z-10">
+            <div className="text-center mb-10">
+                <h3 className="text-4xl font-black uppercase mb-2">Mission Control</h3>
+                <p className="text-gray-400">Completa tu registro para acceder al sistema.</p>
+            </div>
 
-                <div className="flex justify-end mt-6">
-                    <button onClick={() => setFormStep(2)} className="flex items-center gap-4 text-[#ccff00] font-mono hover:text-white transition-colors">
-                        [ CONFIRMAR DATOS ] <ArrowRight />
-                    </button>
-                </div>
-              </motion.div>
-            )}
-
-            {formStep === 2 && (
-              <motion.div 
-                key="step2"
-                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="space-y-8 bg-[#111] p-10 border border-white/5 rounded-sm"
-              >
-                <h3 className="text-2xl font-bold mb-6">¿QUÉ TRACK DEFINE TU VIBE?</h3>
-                <div className="grid grid-cols-2 gap-4">
-                    {['HARD TRAP', 'SAD BOI', 'REGGAETON DARK', 'ACOUSTIC'].map((item, i) => (
-                        <div key={i} className="border border-white/20 p-4 text-center hover:bg-[#ccff00] hover:text-black hover:border-[#ccff00] cursor-pointer transition-all">
-                            {item}
+            <div className="bg-[#0a0a0a] border border-[#333] p-8 md:p-12 rounded-2xl shadow-2xl">
+                <div className="flex mb-10 border-b border-white/10 pb-6">
+                    {[1, 2, 3].map((step) => (
+                        <div key={step} className="flex-1 flex flex-col gap-2">
+                            <div className={`h-1 w-full rounded-full transition-all duration-500 ${step <= formStep ? 'bg-[#ccff00]' : 'bg-[#333]'}`}></div>
+                            <span className={`text-[10px] uppercase font-mono tracking-widest ${step <= formStep ? 'text-[#ccff00]' : 'text-[#555]'}`}>
+                                {step === 1 ? 'Datos' : step === 2 ? 'Vínculo' : 'Misión'}
+                            </span>
                         </div>
                     ))}
                 </div>
-                 <div className="space-y-2 mt-6">
-                    <label className="text-xs font-mono text-gray-500">MENSAJE AL ARTISTA (ENCRIPTADO)</label>
-                    <textarea rows="2" placeholder="..." className="w-full bg-transparent border-b border-[#333] text-xl py-2 focus:outline-none focus:border-[#ccff00] text-white transition-colors" />
-                </div>
 
-                <div className="flex justify-between mt-6">
-                    <button onClick={() => setFormStep(1)} className="text-gray-600 text-sm font-mono hover:text-white">ATRÁS</button>
-                    <button onClick={() => setFormStep(3)} className="flex items-center gap-4 text-[#ccff00] font-mono hover:text-white transition-colors">
-                        [ FINALIZAR ] <ArrowRight />
-                    </button>
-                </div>
-              </motion.div>
-            )}
+                <AnimatePresence mode="wait">
+                    {formStep === 1 && (
+                        <motion.div key="step1" initial={{opacity:0, x:20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-20}} className="space-y-6">
+                            <h3 className="text-3xl font-bold">1. Identificación</h3>
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="group">
+                                    <label className="text-xs text-[#ccff00] font-mono mb-2 block">NOMBRE CLAVE</label>
+                                    <input type="text" placeholder="Tu nombre" className="w-full bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:outline-none transition-colors text-white" />
+                                </div>
+                                <div className="group">
+                                    <label className="text-xs text-[#ccff00] font-mono mb-2 block">EMAIL</label>
+                                    <input type="email" placeholder="email@ejemplo.com" className="w-full bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:outline-none transition-colors text-white" />
+                                </div>
+                            </div>
+                            <div className="flex justify-end mt-8">
+                                <button onClick={() => setFormStep(2)} className="flex items-center gap-2 bg-white text-black px-6 py-3 font-bold hover:bg-[#ccff00] transition-colors">
+                                    SIGUIENTE &rarr;
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
 
-             {formStep === 3 && (
-              <motion.div 
-                key="step3"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="text-center p-10 border border-[#ccff00]/30 bg-[#ccff00]/5 rounded-sm"
-              >
-                <Zap className="w-20 h-20 text-[#ccff00] mx-auto mb-6 animate-pulse" />
-                <h2 className="text-5xl font-black uppercase mb-4">Access<br/>Granted</h2>
-                <p className="text-gray-400 font-mono mb-8">Bienvenido al sistema. Revisa tu correo.</p>
-                <div className="inline-block bg-[#ccff00] text-black px-4 py-1 font-mono font-bold text-sm transform -rotate-3">
-                    MEMBER ID: #9921
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                    {formStep === 2 && (
+                        <motion.div key="step2" initial={{opacity:0, x:20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-20}} className="space-y-6">
+                            <h3 className="text-3xl font-bold">2. Sincronización</h3>
+                            <div>
+                                <label className="text-xs text-[#ccff00] font-mono mb-3 block">¿DESDE CUÁNDO SIGUES A EMIL?</label>
+                                <div className="flex gap-2 flex-wrap">
+                                    {['Desde el inicio', '2023', 'Recién llegué'].map(opt => (
+                                        <button key={opt} className="border border-white/20 px-4 py-2 text-sm hover:bg-white hover:text-black transition-colors">{opt}</button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex justify-between mt-8">
+                                <button onClick={() => setFormStep(1)} className="text-gray-500 hover:text-white text-sm">ATRAS</button>
+                                <button onClick={() => setFormStep(3)} className="flex items-center gap-2 bg-white text-black px-6 py-3 font-bold hover:bg-[#ccff00] transition-colors">
+                                    SIGUIENTE &rarr;
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
 
+                    {formStep === 3 && (
+                        <motion.div key="step3" initial={{opacity:0, x:20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-20}} className="space-y-6">
+                            <h3 className="text-3xl font-bold">3. Misión</h3>
+                            <p className="text-gray-400 text-sm">Selecciona experiencias:</p>
+                            <div className="grid grid-cols-1 gap-3">
+                                {['Conciertos VIP', 'Merch Limitado', 'Comunidad Secreta'].map((item, i) => (
+                                    <div key={i} className="flex items-center gap-4 p-4 border border-white/10 hover:border-[#ccff00] cursor-pointer transition-colors group">
+                                        <div className="w-6 h-6 rounded-full border border-white/30 group-hover:bg-[#ccff00]"></div>
+                                        <span className="font-bold uppercase text-sm">{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex justify-between mt-8">
+                                <button onClick={() => setFormStep(2)} className="text-gray-500 hover:text-white text-sm">ATRAS</button>
+                                <button className="bg-[#ccff00] text-black w-full ml-4 py-4 font-black text-xl hover:scale-105 transition-transform">
+                                    CONFIRMAR INGRESO
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </div>
       </section>
-      
-      <footer className="py-12 border-t border-white/10 flex flex-col items-center justify-center text-center">
-        <h2 className="text-[15vw] leading-none font-black text-[#111] select-none pointer-events-none">EMIL</h2>
-        <div className="flex gap-6 text-sm font-mono text-gray-500 mt-[-5vw]">
-            <a href="#" className="hover:text-[#ccff00]">INSTAGRAM</a>
-            <a href="#" className="hover:text-[#ccff00]">SPOTIFY</a>
-            <a href="#" className="hover:text-[#ccff00]">DISCORD</a>
-        </div>
+
+      <PersistentPlayer isPlaying={isPlaying} togglePlay={() => setIsPlaying(!isPlaying)} />
+
+      <footer className="text-center py-10 text-gray-600 text-xs font-mono border-t border-[#111] mt-20">
+        EMIL CLUB SYSTEM V5.0 // CLEAN & FOCUSED
       </footer>
     </div>
   );
