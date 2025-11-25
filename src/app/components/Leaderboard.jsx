@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { Trophy, Loader2 } from 'lucide-react';
+import { Trophy, Loader2, Crown, Medal } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 export default function Leaderboard({ onJoin }) {
@@ -38,74 +38,98 @@ export default function Leaderboard({ onJoin }) {
         return flags[countryName] || '🌍';
     };
 
+    const getRankStyle = (index) => {
+        if (index === 0) return { color: '#ccff00', shadow: 'shadow-[0_0_15px_rgba(204,255,0,0.4)]', border: 'border-[#ccff00]', bg: 'bg-[#ccff00]/10' };
+        if (index === 1) return { color: '#00f3ff', shadow: 'shadow-[0_0_15px_rgba(0,243,255,0.4)]', border: 'border-[#00f3ff]', bg: 'bg-[#00f3ff]/10' };
+        if (index === 2) return { color: '#bc13fe', shadow: 'shadow-[0_0_15px_rgba(188,19,254,0.4)]', border: 'border-[#bc13fe]', bg: 'bg-[#bc13fe]/10' };
+        return { color: '#666', shadow: '', border: 'border-white/10', bg: 'hover:bg-white/5' };
+    };
+
     return (
         <section className="py-20 px-6 max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-12">
                 <div>
-                    <h3 className="text-4xl font-black uppercase flex items-center gap-3">
-                        <Trophy className="text-[#ccff00]" size={40} />
-                        Leaderboard
+                    <h3 className="text-4xl font-black uppercase flex items-center gap-3 tracking-tighter">
+                        <Trophy className="text-[#ccff00] drop-shadow-[0_0_10px_rgba(204,255,0,0.8)]" size={40} />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Leaderboard</span>
                     </h3>
-                    <p className="text-gray-500 font-mono">Top miembros de Emil Club este mes</p>
+                    <p className="text-gray-500 font-mono text-sm">TOP AGENTES ACTIVOS - ACTUALIZACIÓN EN TIEMPO REAL</p>
                 </div>
-                <button className="text-sm font-mono border-b border-[#ccff00] text-[#ccff00]">VER TODOS &rarr;</button>
+                <button className="text-sm font-mono border-b border-[#ccff00] text-[#ccff00] hover:shadow-[0_0_10px_#ccff00] transition-shadow">VER TODOS &rarr;</button>
             </div>
 
-            <div className="bg-[#111] border border-white/10 rounded-xl overflow-hidden min-h-[300px]">
+            <div className="glass-panel rounded-xl overflow-hidden min-h-[300px] relative">
+                {/* Grid lines decoration */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
+
                 {loading ? (
                     <div className="flex flex-col items-center justify-center h-[300px] gap-4">
                         <Loader2 className="animate-spin text-[#ccff00]" size={40} />
-                        <p className="text-gray-500 font-mono">CARGANDO DATOS...</p>
+                        <p className="text-gray-500 font-mono animate-pulse">CARGANDO DATOS ENCRIPTADOS...</p>
                     </div>
                 ) : leaders.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-[300px] text-center p-8">
-                        <p className="text-gray-400 mb-4">Aún no hay agentes registrados. Sé el primero.</p>
-                        <button onClick={onJoin} className="bg-[#ccff00] text-black px-6 py-2 font-bold rounded-full hover:bg-white transition-colors">
+                        <p className="text-gray-400 mb-4 font-light">Aún no hay agentes registrados. Sé el primero.</p>
+                        <button onClick={onJoin} className="bg-[#ccff00] text-black px-6 py-2 font-bold rounded-full hover:bg-white hover:scale-105 transition-all shadow-[0_0_20px_rgba(204,255,0,0.4)]">
                             REGISTRARSE AHORA
                         </button>
                     </div>
                 ) : (
                     <>
-                        {leaders.map((fan, i) => (
-                            <div key={i} className="flex items-center justify-between p-6 border-b border-white/5 hover:bg-white/5 transition-colors group">
-                                <div className="flex items-center gap-6">
-                                    <span className={`text-2xl font-black font-mono ${i === 0 ? 'text-[#ccff00]' : 'text-gray-600'}`}>
-                                        #{i + 1}
-                                    </span>
-                                    <div className="w-10 h-10 rounded-full bg-gray-800 overflow-hidden">
-                                        <img
-                                            src={`https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${fan.name}`}
-                                            alt="avatar"
-                                        />
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-lg group-hover:text-[#ccff00] transition-colors">{fan.name}</div>
-                                        <div className="text-xs text-gray-500 font-mono">NIVEL: {fan.xp > 1000 ? 'LEGEND' : 'ROOKIE'}</div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <span className="text-2xl">{getFlag(fan.country)}</span>
-                                    <div className="text-right">
-                                        <div className="font-bold font-mono text-xl">{fan.xp?.toLocaleString()}</div>
-                                        <div className="text-[10px] text-gray-500 uppercase">XP POINTS</div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                        <div className="flex flex-col gap-2 p-4 relative z-10">
+                            {leaders.map((fan, i) => {
+                                const style = getRankStyle(i);
+                                return (
+                                    <div key={i} className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-300 group ${style.border} ${style.bg} ${style.shadow}`}>
+                                        <div className="flex items-center gap-6">
+                                            <div className="relative w-12 h-12 flex items-center justify-center">
+                                                {i === 0 && <Crown size={24} className="absolute -top-4 text-[#ccff00] animate-bounce" />}
+                                                <span className={`text-3xl font-black font-mono italic`} style={{ color: i < 3 ? style.color : '#333' }}>
+                                                    #{i + 1}
+                                                </span>
+                                            </div>
 
-                        <div className="p-8 bg-[#1a1a1a] text-center border-t border-white/10">
-                            <p className="text-sm text-gray-400 mb-6 uppercase tracking-widest font-mono">Cómo subir de rango</p>
+                                            <div className={`w-12 h-12 rounded-full border-2 overflow-hidden p-0.5`} style={{ borderColor: i < 3 ? style.color : '#333' }}>
+                                                <img
+                                                    src={`https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${fan.name}`}
+                                                    alt="avatar"
+                                                    className="w-full h-full rounded-full bg-black"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <div className="font-bold text-lg text-white group-hover:text-[#ccff00] transition-colors uppercase tracking-wide">{fan.name}</div>
+                                                <div className="text-[10px] text-gray-400 font-mono border border-white/10 px-2 py-0.5 rounded inline-block bg-black/50">
+                                                    RANGO: {fan.xp > 1000 ? 'LEGEND' : 'ROOKIE'}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-6">
+                                            <span className="text-2xl opacity-80 grayscale group-hover:grayscale-0 transition-all">{getFlag(fan.country)}</span>
+                                            <div className="text-right min-w-[100px]">
+                                                <div className="font-black font-mono text-2xl text-white drop-shadow-md">{fan.xp?.toLocaleString()}</div>
+                                                <div className="text-[9px] text-[#ccff00] uppercase tracking-widest">XP POINTS</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className="p-8 bg-black/40 text-center border-t border-white/5 backdrop-blur-sm">
+                            <p className="text-xs text-gray-500 mb-6 uppercase tracking-[0.2em] font-mono">Misiones Disponibles</p>
                             <div className="flex flex-wrap justify-center gap-4 mb-8">
-                                <div className="bg-black/50 border border-white/10 px-4 py-3 rounded-lg flex items-center gap-3">
-                                    <div className="w-2 h-2 bg-[#ccff00] rounded-full animate-pulse"></div>
-                                    <span className="text-sm font-bold text-white">Escucha Música <span className="text-[#ccff00] ml-1">+50 XP</span></span>
+                                <div className="bg-[#111] border border-white/10 px-4 py-3 rounded-lg flex items-center gap-3 hover:border-[#ccff00] transition-colors group cursor-pointer">
+                                    <div className="w-2 h-2 bg-[#ccff00] rounded-full animate-pulse group-hover:shadow-[0_0_10px_#ccff00]"></div>
+                                    <span className="text-sm font-bold text-gray-300 group-hover:text-white">Escucha Música <span className="text-[#ccff00] ml-1 font-mono">+50 XP</span></span>
                                 </div>
-                                <div className="bg-black/50 border border-white/10 px-4 py-3 rounded-lg flex items-center gap-3">
-                                    <div className="w-2 h-2 bg-[#ccff00] rounded-full animate-pulse"></div>
-                                    <span className="text-sm font-bold text-white">Comparte el Club <span className="text-[#ccff00] ml-1">+100 XP</span></span>
+                                <div className="bg-[#111] border border-white/10 px-4 py-3 rounded-lg flex items-center gap-3 hover:border-[#00f3ff] transition-colors group cursor-pointer">
+                                    <div className="w-2 h-2 bg-[#00f3ff] rounded-full animate-pulse group-hover:shadow-[0_0_10px_#00f3ff]"></div>
+                                    <span className="text-sm font-bold text-gray-300 group-hover:text-white">Comparte el Club <span className="text-[#00f3ff] ml-1 font-mono">+100 XP</span></span>
                                 </div>
                             </div>
-                            <button onClick={onJoin} className="bg-[#ccff00] text-black px-8 py-3 font-black text-sm rounded-full hover:bg-white transition-colors hover:scale-105 transform duration-200">
+                            <button onClick={onJoin} className="bg-white text-black px-8 py-3 font-black text-sm hover:bg-[#ccff00] transition-all hover:scale-105 hover:shadow-[0_0_20px_#ccff00] clip-path-slant">
                                 INICIAR MISIÓN
                             </button>
                         </div>

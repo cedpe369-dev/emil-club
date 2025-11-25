@@ -15,6 +15,7 @@ import Player from './components/Player';
 
 import SocialProof from './components/SocialProof';
 import FinalCTA from './components/FinalCTA';
+import Footer from './components/Footer';
 
 export default function EmilClubPage() {
   const [loading, setLoading] = useState(true);
@@ -73,7 +74,7 @@ export default function EmilClubPage() {
       {/* 8. PLAYER */}
       <Player isPlaying={isPlaying} togglePlay={() => setIsPlaying(!isPlaying)} />
 
-      <footer className="text-center py-10 text-gray-600 text-xs font-mono border-t border-[#111] mt-20">EMIL CLUB SYSTEM V6.0 // PRODUCTION READY</footer>
+      <Footer />
     </div>
   );
 }

@@ -1,26 +1,64 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core Palette */
+  --background: #050505;
+  --foreground: #ffffff;
+
+  /* Neon Accents */
+  --neon-green: #ccff00;
+  --neon-blue: #00f3ff;
+  --neon-purple: #bc13fe;
+
+  /* UI Elements */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-neon-green: var(--neon-green);
+  --color-neon-blue: var(--neon-blue);
+  --color-neon-purple: var(--neon-purple);
+
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+}
+
+.neon-text-green {
+  color: var(--neon-green);
+  text-shadow: 0 0 10px rgba(204, 255, 0, 0.5);
+}
+
+.neon-border-green {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 10px rgba(204, 255, 0, 0.3);
+}
+
+.neon-glow-green {
+  box-shadow: 0 0 20px rgba(204, 255, 0, 0.3);
+}
+
+.neon-glow-blue {
+  box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+}
+
+.neon-glow-purple {
+  box-shadow: 0 0 20px rgba(188, 19, 254, 0.3);
 }

@@ -132,17 +132,23 @@ export default function MissionControl() {
     };
 
     return (
-        <section id="mission-control" className="py-20 px-6 relative overflow-hidden">
+        <section id="mission-control" className="py-20 px-6 relative overflow-hidden bg-[#050505]">
             {/* Fondo decorativo */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#ccff00] rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#ccff00] rounded-full blur-[150px] opacity-5 pointer-events-none animate-pulse"></div>
 
             <div className="max-w-3xl mx-auto relative z-10">
                 <div className="text-center mb-10">
-                    <h3 className="text-4xl font-black uppercase mb-2">Mission Control</h3>
-                    <p className="text-gray-400">Completa tu registro para acceder al sistema.</p>
+                    <h3 className="text-4xl font-black uppercase mb-2 tracking-tighter neon-text-green">Mission Control</h3>
+                    <p className="text-gray-400 font-mono text-sm">COMPLETA TU REGISTRO PARA ACCEDER AL SISTEMA.</p>
                 </div>
 
-                <div className="bg-[#0a0a0a] border border-[#333] p-8 md:p-12 rounded-2xl shadow-2xl min-h-[500px]">
+                <div className="glass-panel p-8 md:p-12 rounded-2xl shadow-2xl min-h-[500px] relative overflow-hidden bg-black/80 backdrop-blur-xl border border-white/10">
+                    {/* Decorative corner accents */}
+                    <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#ccff00]"></div>
+                    <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#ccff00]"></div>
+                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#ccff00]"></div>
+                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#ccff00]"></div>
+
                     <AnimatePresence mode="wait">
                         {formStep === 5 ? (
                             // --- FASE FINAL: ID CARD ---
@@ -152,11 +158,11 @@ export default function MissionControl() {
                         ) : (
                             // --- FASE FORMULARIO ---
                             <motion.div key="form-wrapper" exit={{ opacity: 0 }}>
-                                {/* Barra de Progreso (4 Pasos: Datos, Consent, Vínculo, Misión) */}
+                                {/* Barra de Progreso */}
                                 <div className="flex mb-10 border-b border-white/10 pb-6">
                                     {[1, 2, 3, 4].map((step) => (
-                                        <div key={step} className="flex-1 flex flex-col gap-2">
-                                            <div className={`h-1 w-full rounded-full transition-all duration-500 ${step <= formStep ? 'bg-[#ccff00]' : 'bg-[#333]'}`}></div>
+                                        <div key={step} className="flex-1 flex flex-col gap-2 relative">
+                                            <div className={`h-1 w-full rounded-full transition-all duration-500 ${step <= formStep ? 'bg-[#ccff00] shadow-[0_0_10px_#ccff00]' : 'bg-[#333]'}`}></div>
                                             <span className={`text-[10px] uppercase font-mono tracking-widest ${step <= formStep ? 'text-[#ccff00]' : 'text-[#555]'}`}>
                                                 {step === 1 ? 'Datos' : step === 2 ? 'Legal' : step === 3 ? 'Vínculo' : 'Misión'}
                                             </span>
@@ -167,17 +173,17 @@ export default function MissionControl() {
                                 {/* PASO 1: DATOS */}
                                 {formStep === 1 && (
                                     <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                                        <h3 className="text-3xl font-bold">1. Identificación</h3>
+                                        <h3 className="text-3xl font-bold uppercase italic">1. Identificación</h3>
 
                                         {/* Nombre y Email */}
                                         <div className="grid md:grid-cols-2 gap-6">
                                             <div className="group">
                                                 <label className="text-xs text-[#ccff00] font-mono mb-2 block">NOMBRE CLAVE</label>
-                                                <input type="text" name="name" value={userData.name} onChange={handleInputChange} placeholder="Tu nombre" className="w-full bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:outline-none transition-colors text-white" />
+                                                <input type="text" name="name" value={userData.name} onChange={handleInputChange} placeholder="Tu nombre" className="w-full bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:shadow-[0_10px_20px_-10px_rgba(204,255,0,0.2)] focus:outline-none transition-all text-white placeholder-gray-700" />
                                             </div>
                                             <div className="group">
                                                 <label className="text-xs text-[#ccff00] font-mono mb-2 block">EMAIL</label>
-                                                <input type="email" name="email" value={userData.email} onChange={handleInputChange} placeholder="email@ejemplo.com" className="w-full bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:outline-none transition-colors text-white" />
+                                                <input type="email" name="email" value={userData.email} onChange={handleInputChange} placeholder="email@ejemplo.com" className="w-full bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:shadow-[0_10px_20px_-10px_rgba(204,255,0,0.2)] focus:outline-none transition-all text-white placeholder-gray-700" />
                                             </div>
                                         </div>
 
@@ -185,7 +191,7 @@ export default function MissionControl() {
                                         <div className="grid md:grid-cols-2 gap-6">
                                             <div className="group">
                                                 <label className="text-xs text-[#ccff00] font-mono mb-2 block">GÉNERO</label>
-                                                <select name="gender" value={userData.gender} onChange={handleInputChange} className="w-full bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer">
+                                                <select name="gender" value={userData.gender} onChange={handleInputChange} className="w-full bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer appearance-none rounded-none">
                                                     <option value="male" className="bg-black">Masculino</option>
                                                     <option value="female" className="bg-black">Femenino</option>
                                                     <option value="other" className="bg-black">Otros</option>
@@ -202,7 +208,7 @@ export default function MissionControl() {
                                         <div className="grid md:grid-cols-2 gap-6">
                                             <div className="group">
                                                 <label className="text-xs text-[#ccff00] font-mono mb-2 block">PAÍS</label>
-                                                <select name="country" value={userData.country} onChange={handleInputChange} className="w-full bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer">
+                                                <select name="country" value={userData.country} onChange={handleInputChange} className="w-full bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer appearance-none rounded-none">
                                                     <option value="Global" className="bg-black">Global</option>
                                                     <option value="Perú" className="bg-black">Perú</option>
                                                     <option value="México" className="bg-black">México</option>
@@ -213,7 +219,7 @@ export default function MissionControl() {
                                             </div>
                                             <div className="group">
                                                 <label className="text-xs text-[#ccff00] font-mono mb-2 block">REGIÓN</label>
-                                                <select name="region" value={userData.region} onChange={handleInputChange} className="w-full bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer" disabled={!userData.country || userData.country === 'Global'}>
+                                                <select name="region" value={userData.region} onChange={handleInputChange} className="w-full bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer appearance-none rounded-none" disabled={!userData.country || userData.country === 'Global'}>
                                                     <option value="" className="bg-black">Selecciona Región</option>
                                                     {regionsByCountry[userData.country]?.map(region => (
                                                         <option key={region} value={region} className="bg-black">{region}</option>
@@ -227,7 +233,7 @@ export default function MissionControl() {
                                             <div className="group">
                                                 <label className="text-xs text-[#ccff00] font-mono mb-2 block">CELULAR</label>
                                                 <div className="flex gap-4">
-                                                    <select name="phoneCode" value={userData.phoneCode} onChange={handleInputChange} className="w-24 bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer">
+                                                    <select name="phoneCode" value={userData.phoneCode} onChange={handleInputChange} className="w-24 bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer appearance-none rounded-none">
                                                         <option value="+51" className="bg-black">🇵🇪 +51</option>
                                                         <option value="+52" className="bg-black">🇲🇽 +52</option>
                                                         <option value="+54" className="bg-black">🇦🇷 +54</option>
@@ -235,12 +241,12 @@ export default function MissionControl() {
                                                         <option value="+34" className="bg-black">🇪🇸 +34</option>
                                                         <option value="+1" className="bg-black">🌎 +1</option>
                                                     </select>
-                                                    <input type="tel" name="phoneNumber" value={userData.phoneNumber} onChange={handleInputChange} placeholder="999 999 999" className="flex-1 bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:outline-none transition-colors text-white" />
+                                                    <input type="tel" name="phoneNumber" value={userData.phoneNumber} onChange={handleInputChange} placeholder="999 999 999" className="flex-1 bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:shadow-[0_10px_20px_-10px_rgba(204,255,0,0.2)] focus:outline-none transition-all text-white placeholder-gray-700" />
                                                 </div>
                                             </div>
                                             <div className="group">
                                                 <label className="text-xs text-[#ccff00] font-mono mb-2 block">IDIOMA</label>
-                                                <select name="language" value={userData.language} onChange={handleInputChange} className="w-full bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer">
+                                                <select name="language" value={userData.language} onChange={handleInputChange} className="w-full bg-transparent border-b border-[#333] py-3 text-sm focus:border-[#ccff00] focus:outline-none transition-colors text-white cursor-pointer appearance-none rounded-none">
                                                     <option value="ES" className="bg-black">Español</option>
                                                     <option value="EN" className="bg-black">English</option>
                                                     <option value="PT" className="bg-black">Portugués</option>
@@ -249,7 +255,7 @@ export default function MissionControl() {
                                         </div>
 
                                         <div className="flex justify-end mt-8">
-                                            <button onClick={() => setFormStep(2)} className="flex items-center gap-2 bg-white text-black px-6 py-3 font-bold hover:bg-[#ccff00] transition-colors">
+                                            <button onClick={() => setFormStep(2)} className="flex items-center gap-2 bg-white text-black px-6 py-3 font-bold hover:bg-[#ccff00] hover:shadow-[0_0_20px_#ccff00] transition-all duration-300 clip-path-slant">
                                                 SIGUIENTE &rarr;
                                             </button>
                                         </div>
@@ -259,22 +265,22 @@ export default function MissionControl() {
                                 {/* PASO 2: CONSENTIMIENTO (NUEVO) */}
                                 {formStep === 2 && (
                                     <motion.div key="step2-consent" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 text-center py-10">
-                                        <h3 className="text-3xl font-bold uppercase">Consentimiento</h3>
+                                        <h3 className="text-3xl font-bold uppercase italic">Consentimiento</h3>
                                         <div className="max-w-md mx-auto">
-                                            <p className="text-lg text-gray-300 mb-8 leading-relaxed">
+                                            <p className="text-lg text-gray-300 mb-8 leading-relaxed font-light">
                                                 SI ERES MENOR DE EDAD, DECLARAS QUE TIENES EL CONCENTIMIENTO DE TUS PADRES O APODERADO LEGAL PARA SER PARTE DE ESTE CLUB.
                                             </p>
 
                                             <div className="flex gap-4 justify-center mb-6">
                                                 <button
                                                     onClick={() => handleConsent(true)}
-                                                    className="bg-[#ccff00] text-black px-12 py-4 font-black text-xl hover:scale-105 transition-transform rounded-full"
+                                                    className="bg-[#ccff00] text-black px-12 py-4 font-black text-xl hover:scale-105 hover:shadow-[0_0_30px_#ccff00] transition-all duration-300 clip-path-slant"
                                                 >
                                                     SÍ
                                                 </button>
                                                 <button
                                                     onClick={() => handleConsent(false)}
-                                                    className="bg-transparent border border-white/30 text-white px-12 py-4 font-black text-xl hover:bg-white/10 transition-colors rounded-full"
+                                                    className="bg-transparent border border-white/30 text-white px-12 py-4 font-black text-xl hover:bg-white/10 hover:border-white transition-all duration-300 clip-path-slant"
                                                 >
                                                     NO
                                                 </button>
@@ -285,13 +291,13 @@ export default function MissionControl() {
                                             </p>
 
                                             {showConsentWarning && (
-                                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-[#ccff00] text-sm font-mono bg-white/5 p-4 rounded-lg border border-[#ccff00]/30 mt-4">
+                                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-[#ccff00] text-sm font-mono bg-[#ccff00]/10 p-4 border border-[#ccff00]/30 mt-4">
                                                     <button onClick={() => setFormStep(3)} className="underline hover:text-white">Continuar de todos modos &rarr;</button>
                                                 </motion.div>
                                             )}
                                         </div>
                                         <div className="flex justify-start mt-8">
-                                            <button onClick={() => setFormStep(1)} className="text-gray-500 hover:text-white text-sm">ATRAS</button>
+                                            <button onClick={() => setFormStep(1)} className="text-gray-500 hover:text-white text-sm font-mono">ATRAS</button>
                                         </div>
                                     </motion.div>
                                 )}
@@ -299,12 +305,12 @@ export default function MissionControl() {
                                 {/* PASO 3: VÍNCULO */}
                                 {formStep === 3 && (
                                     <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                                        <h3 className="text-3xl font-bold">3. Sincronización</h3>
+                                        <h3 className="text-3xl font-bold uppercase italic">3. Sincronización</h3>
 
                                         {/* Año */}
                                         <div className="group">
                                             <label className="text-xs text-[#ccff00] font-mono mb-2 block">¿DESDE CUÁNDO SIGUES A EMIL? (AÑO)</label>
-                                            <input type="number" name="sinceYear" value={userData.sinceYear} onChange={handleInputChange} placeholder="Ej: 2023" className="w-full bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:outline-none transition-colors text-white" />
+                                            <input type="number" name="sinceYear" value={userData.sinceYear} onChange={handleInputChange} placeholder="Ej: 2023" className="w-full bg-transparent border-b border-[#333] py-3 text-xl focus:border-[#ccff00] focus:shadow-[0_10px_20px_-10px_rgba(204,255,0,0.2)] focus:outline-none transition-all text-white placeholder-gray-700" />
                                         </div>
 
                                         {/* Contacto */}
@@ -315,7 +321,7 @@ export default function MissionControl() {
                                                     <button
                                                         key={opt}
                                                         onClick={() => setUserData({ ...userData, contactPreference: opt })}
-                                                        className={`border px-4 py-2 text-sm transition-colors ${userData.contactPreference === opt ? 'bg-[#ccff00] text-black border-[#ccff00]' : 'border-white/20 hover:bg-white hover:text-black'}`}
+                                                        className={`border px-4 py-2 text-sm transition-all duration-300 clip-path-slant ${userData.contactPreference === opt ? 'bg-[#ccff00] text-black border-[#ccff00] shadow-[0_0_15px_rgba(204,255,0,0.4)]' : 'border-white/20 hover:bg-white/10 hover:border-white'}`}
                                                     >
                                                         {opt}
                                                     </button>
@@ -331,7 +337,7 @@ export default function MissionControl() {
                                                     <button
                                                         key={opt}
                                                         onClick={() => toggleSelection('socialPreference', opt)}
-                                                        className={`border px-4 py-2 text-sm transition-colors ${userData.socialPreference.includes(opt) ? 'bg-[#ccff00] text-black border-[#ccff00]' : 'border-white/20 hover:bg-white hover:text-black'}`}
+                                                        className={`border px-4 py-2 text-sm transition-all duration-300 clip-path-slant ${userData.socialPreference.includes(opt) ? 'bg-[#ccff00] text-black border-[#ccff00] shadow-[0_0_15px_rgba(204,255,0,0.4)]' : 'border-white/20 hover:bg-white/10 hover:border-white'}`}
                                                     >
                                                         {opt}
                                                     </button>
@@ -340,8 +346,8 @@ export default function MissionControl() {
                                         </div>
 
                                         <div className="flex justify-between mt-8">
-                                            <button onClick={() => setFormStep(2)} className="text-gray-500 hover:text-white text-sm">ATRAS</button>
-                                            <button onClick={() => setFormStep(4)} className="flex items-center gap-2 bg-white text-black px-6 py-3 font-bold hover:bg-[#ccff00] transition-colors">
+                                            <button onClick={() => setFormStep(2)} className="text-gray-500 hover:text-white text-sm font-mono">ATRAS</button>
+                                            <button onClick={() => setFormStep(4)} className="flex items-center gap-2 bg-white text-black px-6 py-3 font-bold hover:bg-[#ccff00] hover:shadow-[0_0_20px_#ccff00] transition-all duration-300 clip-path-slant">
                                                 SIGUIENTE &rarr;
                                             </button>
                                         </div>
@@ -351,8 +357,8 @@ export default function MissionControl() {
                                 {/* PASO 4: MISIÓN */}
                                 {formStep === 4 && (
                                     <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                                        <h3 className="text-3xl font-bold">4. Misión</h3>
-                                        <p className="text-gray-400 text-sm">SELECCIONA EN ORDEN DE IMPORTANCIA QUÉ EXPERIENCIAS TE GUSTARÍA DISFRUTAR EN EMIL CLUB:</p>
+                                        <h3 className="text-3xl font-bold uppercase italic">4. Misión</h3>
+                                        <p className="text-gray-400 text-sm font-mono">SELECCIONA EN ORDEN DE IMPORTANCIA:</p>
                                         <div className="grid grid-cols-1 gap-3">
                                             {[
                                                 'CONOCER A EMIL',
@@ -368,22 +374,22 @@ export default function MissionControl() {
                                                     <div
                                                         key={item}
                                                         onClick={() => toggleSelection('missionPreferences', item)}
-                                                        className={`flex items-center gap-4 p-4 border cursor-pointer transition-colors group ${isSelected ? 'border-[#ccff00] bg-[#ccff00]/10' : 'border-white/10 hover:border-[#ccff00]'}`}
+                                                        className={`flex items-center gap-4 p-4 border cursor-pointer transition-all duration-300 group ${isSelected ? 'border-[#ccff00] bg-[#ccff00]/10 shadow-[0_0_20px_rgba(204,255,0,0.1)]' : 'border-white/10 hover:border-[#ccff00] hover:bg-white/5'}`}
                                                     >
-                                                        <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm ${isSelected ? 'bg-[#ccff00] text-black border-[#ccff00]' : 'border-white/30 group-hover:border-[#ccff00]'}`}>
+                                                        <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-bold text-sm transition-all ${isSelected ? 'bg-[#ccff00] text-black border-[#ccff00] shadow-[0_0_10px_#ccff00]' : 'border-white/30 group-hover:border-[#ccff00]'}`}>
                                                             {isSelected ? order : ''}
                                                         </div>
-                                                        <span className={`font-bold uppercase text-sm ${isSelected ? 'text-[#ccff00]' : 'text-white'}`}>{item}</span>
+                                                        <span className={`font-bold uppercase text-sm tracking-wider ${isSelected ? 'text-[#ccff00]' : 'text-white'}`}>{item}</span>
                                                     </div>
                                                 );
                                             })}
                                         </div>
                                         <div className="flex justify-between mt-8">
-                                            <button onClick={() => setFormStep(3)} className="text-gray-500 hover:text-white text-sm">ATRAS</button>
+                                            <button onClick={() => setFormStep(3)} className="text-gray-500 hover:text-white text-sm font-mono">ATRAS</button>
                                             <button
                                                 onClick={handleSubmit}
                                                 disabled={isSubmitting}
-                                                className="bg-[#ccff00] text-black w-full ml-4 py-4 font-black text-xl hover:scale-105 transition-transform flex items-center justify-center gap-2 disabled:opacity-50"
+                                                className="bg-[#ccff00] text-black w-full ml-4 py-4 font-black text-xl hover:scale-105 hover:shadow-[0_0_30px_#ccff00] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 clip-path-slant"
                                             >
                                                 {isSubmitting ? <Loader2 className="animate-spin" /> : "CONFIRMAR INGRESO"}
                                             </button>

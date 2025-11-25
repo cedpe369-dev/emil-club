@@ -4,71 +4,65 @@ import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Play, Pause } from 'lucide-react';
 
-// Sub-componente Vinilo (interno para mantener orden)
-const Vinyl3D = ({ isPlaying, onClick }) => (
-  <motion.div
-    className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer group perspective-1000"
-    onClick={onClick}
-    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-  >
-    <motion.div
-      animate={{ rotate: isPlaying ? 360 : 0 }}
-      transition={{ duration: 3, repeat: Infinity, ease: "linear", playState: isPlaying ? "running" : "paused" }}
-      className="w-full h-full rounded-full bg-black border-4 border-[#111] shadow-[0_0_40px_rgba(204,255,0,0.3)] flex items-center justify-center relative z-10 overflow-hidden"
-    >
-      <div className="absolute inset-0 bg-[repeating-radial-gradient(#111_0,#111_2px,#222_3px)] opacity-50"></div>
-      <div className="w-1/3 h-1/3 bg-[#ccff00] rounded-full flex items-center justify-center relative z-20">
-        <div className="w-3 h-3 bg-black rounded-full"></div>
-      </div>
-    </motion.div>
-  </motion.div>
-);
-
 export default function Hero({ isPlaying, setIsPlaying, onScrollToForm }) {
   const { scrollYProgress } = useScroll();
   const yHero = useTransform(scrollYProgress, [0, 1], [0, 200]);
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden bg-[#050505]">
+
+      {/* FONDO AMBIENTAL NEON */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#bc13fe] rounded-full blur-[150px] opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#00f3ff] rounded-full blur-[150px] opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+      </div>
 
       {/* FONDO IMAGEN/VIDEO ANIMADO */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-[#050505]/40 z-10"></div>
+      <div className="absolute inset-0 z-0 mix-blend-overlay opacity-30">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent z-10"></div>
         <motion.img
           initial={{ scale: 1 }} animate={{ scale: 1.1 }}
           transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
           src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?q=80&w=2070&auto=format&fit=crop"
-          alt="Concert Background" className="w-full h-full object-cover opacity-50"
+          alt="Concert Background" className="w-full h-full object-cover grayscale"
         />
       </div>
 
       {/* TEXTO GIGANTE DE FONDO */}
-      <motion.div style={{ y: yHero }} className="absolute inset-0 flex items-center justify-center select-none opacity-20 pointer-events-none z-0">
-        <h1 className="text-[25vw] font-black text-white leading-none tracking-tighter mix-blend-overlay">EMIL</h1>
+      <motion.div style={{ y: yHero }} className="absolute inset-0 flex items-center justify-center select-none opacity-10 pointer-events-none z-0">
+        <h1 className="text-[25vw] font-black text-transparent stroke-text leading-none tracking-tighter" style={{ WebkitTextStroke: "2px rgba(255,255,255,0.1)" }}>EMIL</h1>
       </motion.div>
 
       {/* CONTENIDO PRINCIPAL */}
       <div className="relative z-10 flex flex-col md:flex-row items-center gap-12 w-full max-w-7xl">
         <div className="flex-1 space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 border border-[#ccff00] rounded-full text-[#ccff00] font-mono text-xs uppercase tracking-widest bg-black/50 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 border border-[#ccff00] rounded-full text-[#ccff00] font-mono text-xs uppercase tracking-widest bg-black/50 backdrop-blur-sm shadow-[0_0_15px_rgba(204,255,0,0.2)]">
             <span className="w-2 h-2 bg-[#ccff00] rounded-full animate-ping"></span> SYSTEM ONLINE V2.0
           </div>
-          <h2 className="text-6xl md:text-8xl font-black uppercase leading-[0.9]">
-            Rompe <br /><span className="text-transparent stroke-text" style={{ WebkitTextStroke: "2px white" }}>La Norma</span>
+          <h2 className="text-6xl md:text-8xl font-black uppercase leading-[0.9] tracking-tight">
+            Rompe <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-gray-600" style={{ WebkitTextStroke: "1px white" }}>La Norma</span>
           </h2>
-          <p className="text-xl text-gray-300 max-w-lg">
+          <p className="text-xl text-gray-300 max-w-lg font-light">
             Únete a Emil Club. Accede a contenido encriptado, preventas exclusivas y sube de rango en el leaderboard global.
           </p>
 
           <div className="flex flex-col md:flex-row gap-4 pt-4">
-            <button onClick={onScrollToForm} className="bg-[#ccff00] text-black px-8 py-4 font-bold text-lg hover:bg-white transition-colors">
+            <button
+              onClick={onScrollToForm}
+              className="bg-[#ccff00] text-black px-8 py-4 font-bold text-lg hover:bg-[#b3e600] hover:scale-105 hover:shadow-[0_0_30px_rgba(204,255,0,0.6)] transition-all duration-300 clip-path-slant"
+            >
               UNIRSE AHORA
             </button>
             <div className="relative group">
-              <div className="absolute -top-3 -right-2 bg-[#ccff00] text-black text-[10px] font-bold px-2 py-0.5 rounded-full animate-bounce z-20">
+              <div className="absolute -top-3 -right-2 bg-[#ccff00] text-black text-[10px] font-bold px-2 py-0.5 rounded-full animate-bounce z-20 shadow-[0_0_10px_#ccff00]">
                 +50 XP DIARIOS
               </div>
-              <button onClick={() => setIsPlaying(!isPlaying)} className="border border-white px-8 py-4 font-bold text-lg hover:bg-white hover:text-black transition-colors flex items-center gap-2 backdrop-blur-sm bg-black/20 relative z-10">
+              <button
+                onClick={() => setIsPlaying(!isPlaying)}
+                className="border border-white/30 px-8 py-4 font-bold text-lg hover:bg-white hover:text-black hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all duration-300 flex items-center gap-2 backdrop-blur-sm bg-black/20 relative z-10"
+              >
                 {isPlaying ? <Pause size={20} /> : <Play size={20} />}
                 {isPlaying ? "PAUSA" : "PLAY DEMO"}
               </button>
@@ -76,8 +70,25 @@ export default function Hero({ isPlaying, setIsPlaying, onScrollToForm }) {
           </div>
         </div>
 
-        <div className="flex-1 flex justify-center">
-          <Vinyl3D isPlaying={isPlaying} onClick={() => setIsPlaying(!isPlaying)} />
+        <div className="flex-1 flex justify-center relative">
+          {/* Logo Glow Effect - Minimal Opacity */}
+          <div className="absolute inset-0 bg-[#ccff00] blur-[100px] opacity-[0.10] rounded-full"></div>
+
+          {/* Logo - Increased Size */}
+          <motion.img
+            src="/Logo EMIL CLUB.png"
+            alt="Emil Club Logo"
+            className="w-full max-w-2xl object-contain relative z-10 drop-shadow-[0_0_20px_rgba(204,255,0,0.1)]"
+            animate={{
+              y: [0, -20, 0],
+              rotate: isPlaying ? 360 : 0
+            }}
+            transition={{
+              y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+              rotate: { duration: 20, repeat: Infinity, ease: "linear", playState: isPlaying ? "running" : "paused" }
+            }}
+            whileHover={{ scale: 1.05, dropShadow: "0 0 40px rgba(204,255,0,0.6)" }}
+          />
         </div>
       </div>
     </section>
