@@ -51,18 +51,16 @@ export default function MissionControl() {
     const toggleSelection = (field, value) => {
         setUserData(prev => {
             const current = prev[field] || [];
-            if (current.includes(value)) {
-                return { ...prev, [field]: current.filter(item => item !== value) };
-            } else {
-                return { ...prev, [field]: [...current, value] };
-            }
+            const newSelection = current.includes(value)
+                ? current.filter(item => item !== value)
+                : [...current, value];
+            return { ...prev, [field]: newSelection };
         });
     };
 
-    const handleConsent = (agreed) => {
-        if (agreed) {
-            setShowConsentWarning(false);
-            setFormStep(3); // Ir a Vínculo
+    const handleConsent = (accepted) => {
+        if (accepted) {
+            setFormStep(3);
         } else {
             setShowConsentWarning(true);
         }
@@ -105,10 +103,10 @@ export default function MissionControl() {
                         country: userData.country,
                         region: userData.region,
                         language: userData.language,
-                        birthday: userData.birthday,
+                        birthday: userData.birthday || null,
                         phone_code: userData.phoneCode,
                         phone_number: userData.phoneNumber,
-                        since_year: userData.sinceYear,
+                        since_year: userData.sinceYear || null,
                         contact_preference: userData.contactPreference,
                         social_preference: userData.socialPreference,
                         mission_preferences: userData.missionPreferences,
@@ -125,30 +123,20 @@ export default function MissionControl() {
 
         } catch (error) {
             console.error('Error guardando:', error);
-            alert('Hubo un error de conexión. Intenta de nuevo.');
+            alert(`Error: ${error.message || JSON.stringify(error)}`);
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <section id="mission-control" className="py-20 px-6 relative overflow-hidden bg-[#050505]">
-            {/* Fondo decorativo */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#ccff00] rounded-full blur-[150px] opacity-5 pointer-events-none animate-pulse"></div>
+        <section className="min-h-screen pt-32 pb-20 relative overflow-hidden">
+            {/* Background Elements */}
+            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black via-transparent to-black"></div>
 
-            <div className="max-w-3xl mx-auto relative z-10">
-                <div className="text-center mb-10">
-                    <h3 className="text-4xl font-black uppercase mb-2 tracking-tighter neon-text-green">Mission Control</h3>
-                    <p className="text-gray-400 font-mono text-sm">COMPLETA TU REGISTRO PARA ACCEDER AL SISTEMA.</p>
-                </div>
-
-                <div className="p-8 md:p-12 rounded-2xl shadow-2xl min-h-[500px] relative overflow-hidden bg-black/90 backdrop-blur-xl border border-white/20">
-                    {/* Decorative corner accents */}
-                    <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#ccff00]"></div>
-                    <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#ccff00]"></div>
-                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#ccff00]"></div>
-                    <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#ccff00]"></div>
-
+            <div className="container mx-auto px-4 relative z-10">
+                <div className="max-w-3xl mx-auto">
                     <AnimatePresence mode="wait">
                         {formStep === 5 ? (
                             // --- FASE FINAL: ID CARD ---
