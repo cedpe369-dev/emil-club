@@ -10,7 +10,7 @@ export default function Preloader({ onComplete }) {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(timer);
-          setTimeout(onComplete, 500); 
+          setTimeout(onComplete, 500);
           return 100;
         }
         return prev + 2;
@@ -20,13 +20,13 @@ export default function Preloader({ onComplete }) {
   }, []);
 
   return (
-    <motion.div 
+    <motion.div
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center text-[#ccff00]"
     >
-      <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 uppercase">Emil Club</h1>
+      <img src="/Logo EMIL CLUB.png" alt="Emil Club Logo" className="w-48 md:w-64 mb-8 drop-shadow-[0_0_15px_rgba(204,255,0,0.5)]" />
       <div className="w-64 h-1 bg-[#111] overflow-hidden">
-        <motion.div 
+        <motion.div
           className="h-full bg-[#ccff00]"
           style={{ width: `${progress}%` }}
         />
