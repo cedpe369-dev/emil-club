@@ -18,12 +18,12 @@ export default function Hero({ onScrollToForm }) {
       </div>
 
       {/* FONDO IMAGEN/VIDEO ANIMADO */}
-      <div className="absolute inset-0 z-0 mix-blend-overlay opacity-30">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent z-10"></div>
+      <div className="absolute inset-0 z-0 mix-blend-overlay opacity-65">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/0 to-transparent z-10"></div>
         <motion.img
           initial={{ scale: 1 }} animate={{ scale: 1.1 }}
           transition={{ duration: 20, repeat: Infinity, repeatType: "reverse" }}
-          src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?q=80&w=2070&auto=format&fit=crop"
+          src="/FONDO1.png"
           alt="Concert Background" className="w-full h-full object-cover grayscale"
         />
       </div>
